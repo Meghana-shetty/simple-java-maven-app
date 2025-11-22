@@ -6,11 +6,11 @@ FROM maven:3.9.9-eclipse-temurin-17 AS build
 # Set working directory inside the container
 WORKDIR /app
 
-# Copy Maven configuration and source
+# Copy Maven configuration and source code
 COPY pom.xml .
 COPY src ./src
 
-# Build the JAR file (skip tests if you want)
+# Build the JAR file
 RUN mvn clean package -DskipTests
 
 # ----------------------------
@@ -24,11 +24,12 @@ WORKDIR /app
 # Copy the built JAR from the previous stage
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose the port your application runs on
+# Expose the port your application listens on
 EXPOSE 8080
 
 # Run the JAR
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
 
 
 # FROM maven:latest AS build
