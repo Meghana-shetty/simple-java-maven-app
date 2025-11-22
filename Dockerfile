@@ -1,14 +1,29 @@
+# Stage 1: Build
 FROM maven:latest AS build
 WORKDIR /app
-COPY . .
+COPY pom.xml .
 COPY src ./src
-RUN mvn package -DskipTests
+RUN mvn clean package -DskipTests
 
+# Stage 2: Run
 FROM tomcat:latest
 RUN rm -rf /usr/local/tomcat/webapps/*
-COPY --from=build app/target/*.war usr/local/tomcat/webapps/new.war
+COPY --from=build /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
+
+
+# FROM maven:latest AS build
+# WORKDIR /app
+# COPY . .
+# #COPY src ./src
+# RUN mvn package -DskipTests
+
+# FROM tomcat:latest
+# RUN rm -rf /usr/local/tomcat/webapps/*
+# COPY --from=build app/target/*.war usr/local/tomcat/webapps/new.war
+# EXPOSE 8080
+# CMD ["catalina.sh", "run"]
 
 # https://github.com/Meghana-shetty/simple-java-maven-app
 
