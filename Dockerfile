@@ -1,17 +1,34 @@
-# Stage 1: Build
-FROM maven:latest AS build
+# ----------------------------
+# Stage 1: Build the application
+# ----------------------------
+FROM maven:3.9.9-eclipse-temurin-17 AS build
+
+# Set working directory inside the container
 WORKDIR /app
+
+# Copy Maven configuration and source
 COPY pom.xml .
 COPY src ./src
+
+# Build the JAR file (skip tests if you want)
 RUN mvn clean package -DskipTests
 
-CMD ["java", "-jar", ""]
-# Stage 2: Run
-# FROM tomcat:latest
-# RUN rm -rf /usr/local/tomcat/webapps/*
-# COPY --from=build /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
-# EXPOSE 8080
-CMD ["catalina.sh", "run"]
+# ----------------------------
+# Stage 2: Run the application
+# ----------------------------
+FROM eclipse-temurin:17-jdk
+
+# Set working directory
+WORKDIR /app
+
+# Copy the built JAR from the previous stage
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose the port your application runs on
+EXPOSE 8080
+
+# Run the JAR
+ENTRYPOINT ["java", "-jar", "app.jar"]
 
 
 # FROM maven:latest AS build
