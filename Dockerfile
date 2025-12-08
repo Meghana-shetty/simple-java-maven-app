@@ -48,3 +48,24 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 # ENTRYPOINT ["java", "-jar", "app.jar"]
 
 # here, if main app continiously runs then only we can get the application in exposed port. else can't as this is java jar
+
+
+*******************************
+# Stage 1: Build
+FROM maven:3.9-eclipse-temurin-17 AS build
+WORKDIR /app
+COPY . .
+RUN mvn -B clean package -DskipTests
+
+# Stage 2: Run
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+
+# Copy the built JAR (use wildcard safely — matches exactly one file)
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose port only if your app listens on one (e.g. Spring Boot)
+# EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
